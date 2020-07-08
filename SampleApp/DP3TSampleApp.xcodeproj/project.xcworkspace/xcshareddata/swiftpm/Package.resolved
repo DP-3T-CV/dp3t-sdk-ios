@@ -66,7 +66,7 @@
       },
       {
         "package": "SQLite.swift",
-        "repositoryURL": "https://github.com/stephencelis/SQLite.swift.git",
+        "repositoryURL": "https://github.com/stephencelis/SQLite.swift",
         "state": {
           "branch": null,
           "revision": "0a9893ec030501a3956bee572d6b4fdd3ae158a1",
@@ -98,6 +98,15 @@
           "branch": null,
           "revision": "7790acf0a81d08429cb20375bf42a8c7d279c5fe",
           "version": "1.8.0"
+        }
+      },
+      {
+        "package": "ZIPFoundation",
+        "repositoryURL": "https://github.com/weichsel/ZIPFoundation/",
+        "state": {
+          "branch": null,
+          "revision": "ec32d62d412578542c0ffb7a6ce34d3e64b43b94",
+          "version": "0.9.11"
         }
       }
     ]

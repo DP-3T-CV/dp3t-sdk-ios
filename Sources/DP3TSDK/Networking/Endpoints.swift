@@ -1,7 +1,11 @@
 /*
- * Created by Ubique Innovation AG
- * https://www.ubique.ch
- * Copyright (c) 2020. All rights reserved.
+ * Copyright (c) 2020 Ubique Innovation AG <https://www.ubique.ch>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 import Foundation
@@ -26,11 +30,27 @@ struct ExposeeEndpoint {
         baseURL.appendingPathComponent(version)
     }
 
-    /// Get the URL for the exposed people endpoint at a day
-    /// - Parameter batchTimestamp: batchTimestamp
-    func getExposee(batchTimestamp: Date) -> URL {
+    /// Get the URL for the exposed people endpoint at a day for GAEN
+    /// - Parameters:
+    ///  - batchTimestamp: batchTimestamp
+    ///  - publishedAfter: get results published after the given timestamp
+    func getExposeeGaen(batchTimestamp: Date, publishedAfter: Date? = nil) -> URL {
         let milliseconds = batchTimestamp.millisecondsSince1970
-        return baseURLVersionned.appendingPathComponent("exposed").appendingPathComponent(String(milliseconds))
+        let url = baseURLVersionned.appendingPathComponent("gaen")
+            .appendingPathComponent("exposed")
+            .appendingPathComponent(String(milliseconds))
+
+        var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+
+        if let publishedAfter = publishedAfter {
+            urlComponents?.queryItems = [URLQueryItem(name: "publishedAfter", value: String(publishedAfter.millisecondsSince1970))]
+        }
+
+        guard let finalUrl = urlComponents?.url else {
+            fatalError("can't create URLComponents url")
+        }
+
+        return finalUrl
     }
 }
 
@@ -54,13 +74,13 @@ struct ManagingExposeeEndpoint {
         baseURL.appendingPathComponent(version)
     }
 
-    /// Get the add exposee endpoint URL
-    func addExposee() -> URL {
-        baseURLVersionned.appendingPathComponent("exposed")
+    /// Get the add exposed endpoint URL
+    func addExposedGaen() -> URL {
+        baseURLVersionned.appendingPathComponent("gaen").appendingPathComponent("exposed")
     }
 
-    /// Get the remove exposee endpoint URL
-    func removeExposee() -> URL {
-        baseURLVersionned.appendingPathComponent("removeexposed")
+    /// Get the add exposed next day endpoint URL
+    func addExposedGaenNextDay() -> URL {
+        baseURLVersionned.appendingPathComponent("gaen").appendingPathComponent("exposednextday")
     }
 }

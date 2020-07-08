@@ -1,13 +1,25 @@
 /*
- * Created by Ubique Innovation AG
- * https://www.ubique.ch
- * Copyright (c) 2020. All rights reserved.
+ * Copyright (c) 2020 Ubique Innovation AG <https://www.ubique.ch>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 import Foundation
 
-/// Model to describe the application endpoints
-public struct ApplicationDescriptor: Codable {
+/// Model to describe the application configuration
+public struct ApplicationDescriptor {
+    public init(appId: String, bucketBaseUrl: URL, reportBaseUrl: URL, jwtPublicKey: Data? = nil, mode: Mode = .production) {
+        self.appId = appId
+        self.bucketBaseUrl = bucketBaseUrl
+        self.reportBaseUrl = reportBaseUrl
+        self.jwtPublicKey = jwtPublicKey
+        self.mode = mode
+    }
+
     /// The app ID
     var appId: String
     /// The backend base URL to load buckets
@@ -16,21 +28,11 @@ public struct ApplicationDescriptor: Codable {
     var reportBaseUrl: URL
     /// The JWT public key
     var jwtPublicKey: Data?
-    /// The contact person for the record
-    internal var contact: String?
-    /// A description of the service
-    internal var description: String?
 
-    public init(appId: String, bucketBaseUrl: URL, reportBaseUrl: URL, jwtPublicKey: Data?) {
-        self.init(appId: appId, description: nil, jwtPublicKey: jwtPublicKey, bucketBaseUrl: bucketBaseUrl, reportBaseUrl: reportBaseUrl, contact: nil)
-    }
+    var mode: Mode = .production
 
-    internal init(appId: String, description: String?, jwtPublicKey: Data?, bucketBaseUrl: URL, reportBaseUrl: URL, contact: String?) {
-        self.appId = appId
-        self.bucketBaseUrl = bucketBaseUrl
-        self.reportBaseUrl = reportBaseUrl
-        self.description = description
-        self.contact = contact
-        self.jwtPublicKey = jwtPublicKey
+    public enum Mode {
+        case production
+        case test
     }
 }

@@ -1,7 +1,11 @@
 /*
- * Created by Ubique Innovation AG
- * https://www.ubique.ch
- * Copyright (c) 2020. All rights reserved.
+ * Copyright (c) 2020 Ubique Innovation AG <https://www.ubique.ch>
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 import Foundation
@@ -16,16 +20,14 @@ public enum InfectionStatus {
     /// The user is infected and has signaled it himself
     case infected
 
-    static func getInfectionState(from database: DP3TDatabase) -> InfectionStatus {
-        guard Default.shared.didMarkAsInfected == false else {
+    static func getInfectionState(from storage: ExposureDayStorage, defaults: DefaultStorage = Default.shared) -> InfectionStatus {
+        guard defaults.didMarkAsInfected == false else {
             return .infected
         }
 
-        let matchingDays = try? database.exposureDaysStorage.count()
-        let hasMatchingDays: Bool = (matchingDays ?? 0) > 0
-        if hasMatchingDays,
-            let matchedDays = try? database.exposureDaysStorage.getExposureDays() {
-            return .exposed(days: matchedDays)
+        let matchingDays = storage.getDays()
+        if let newestDay = matchingDays.first {
+            return .exposed(days: [newestDay])
         } else {
             return .healthy
         }
@@ -33,27 +35,32 @@ public enum InfectionStatus {
 }
 
 /// The tracking state of the bluetooth and the other networking api
-public enum TrackingState {
+public enum TrackingState: Equatable {
+    /// The tracker is not fully initialized
+    case initialization
     /// The tracking is active and working fine
     case active
-
-    #if CALIBRATION
-        case activeReceiving
-        case activeAdvertising
-    #endif
-
     /// The tracking is stopped by the user
     case stopped
     /// The tracking is facing some issues that needs to be solved
     case inactive(error: DP3TTracingError)
+
+    public static func == (lhs: TrackingState, rhs: TrackingState) -> Bool {
+        switch (lhs, rhs) {
+        case (.active, .active): fallthrough
+        case (.initialization, initialization): fallthrough
+        case (.stopped, stopped):
+            return true
+        case let (.inactive(lhsError), .inactive(rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        default:
+            return false
+        }
+    }
 }
 
 /// The state of the API
 public struct TracingState {
-    /// The number of handshakes with other phones
-    public var numberOfHandshakes: Int
-    /// The number of encounters with other people
-    public var numberOfContacts: Int
     /// The tracking state of the bluetooth and the other networking api
     public var trackingState: TrackingState
     /// The last syncronization when the list of infected people was fetched
@@ -62,4 +69,26 @@ public struct TracingState {
     public var infectionStatus: InfectionStatus
     /// Indicates if the user has enabled backgorundRefresh
     public var backgroundRefreshState: UIBackgroundRefreshStatus
+}
+
+/// Result of a sync
+public enum SyncResult: Equatable {
+    /// Sync was successful
+    case success
+    /// An error occured
+    case failure(_ error: DP3TTracingError)
+    /// tracing is not active / sdk is still be in initialization phase / sync is defered due to ratelimit
+    case skipped
+
+    public static func == (lhs: SyncResult, rhs: SyncResult) -> Bool {
+        switch (lhs, rhs) {
+        case (.success, .success),
+             (.skipped, .skipped):
+            return true
+        case let (.failure(lhsError), .failure(rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        default:
+            return false
+        }
+    }
 }
