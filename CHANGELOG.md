@@ -1,5 +1,19 @@
 # Changelog for DP3T-SDK iOS
 
+## Version 1.3.0 (29.09.2020)
+- Improve last day TEK export handling for iOS > 13.7 (must not disable EN until the following day)
+- Introduce new tracing error (.authorizationUnknown) to be able to handle users that did not grant (or revoked authorization by disabling exposure notifications in the iOS settings).
+- all apps using this SDK must specify ENDeveloperRegion and ENAPIVersion in their info.plist
+
+## Version 1.2.1 (31.08.2020)
+- ensures that backgroundtask keeps running until outstandingPublishOperation is finished
+
+## Version 1.2.0 (26.08.2020)
+- resolves keychain issue with iOS 14
+- adds iOS 14 info.plist entries for calibration app
+- submitted keys are now always filled up to 30 instead of 14
+- resolves detection issue for iOS 14 beta 5
+
 ## Version 1.1.1 (13.08.2020)
 - DP3TNetworkingError.HTTPFailureResponse includes raw data
 
